@@ -374,7 +374,7 @@
             </div>
 
             <div class="p-4 border-t border-slate-800 hidden md:flex justify-between items-center bg-slate-900/50">
-                <p class="text-xs text-slate-500">v8.0 Bot Edition</p>
+                <p class="text-xs text-slate-500">v10.0 AI Art</p>
                 <button onclick="logout()" class="text-slate-500 hover:text-red-400 transition text-xs"><i class="fas fa-sign-out-alt mr-1"></i> Thoát</button>
             </div>
         </div>
@@ -443,7 +443,6 @@
             </div>
 
             <div class="p-4 glass mb-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800">
-                <!-- Quick Replies -->
                 <div class="quick-replies mb-2">
                     <button class="quick-reply-btn" onclick="sendQuickReply('Xin chào! 👋')">Xin chào! 👋</button>
                     <button class="quick-reply-btn" onclick="sendQuickReply('Kết bạn nha? 🤝')">Kết bạn nha? 🤝</button>
@@ -458,7 +457,7 @@
                     <button onclick="toggleEmoji()" class="w-10 h-10 rounded-full text-yellow-500 hover:bg-slate-700/50 transition flex items-center justify-center"><i class="fas fa-smile text-xl"></i></button>
                     
                     <div class="flex-1 relative py-2">
-                        <textarea id="message-input" rows="1" class="w-full bg-transparent text-white focus:outline-none resize-none max-h-32 placeholder-slate-500 leading-relaxed scrollbar-hide" placeholder="Nhập tin nhắn..."></textarea>
+                        <textarea id="message-input" rows="1" class="w-full bg-transparent text-white focus:outline-none resize-none max-h-32 placeholder-slate-400 leading-normal scrollbar-hide z-10 relative" placeholder="Nhập tin nhắn..." style="min-height: 24px; color: white;"></textarea>
                     </div>
 
                     <div id="emoji-picker" class="hidden absolute bottom-16 left-0 bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-2xl w-72 h-72 overflow-y-auto z-20 custom-scrollbar">
@@ -665,11 +664,18 @@
         let replyTo = null;
         let chatTheme = 'from-indigo-500 to-purple-500';
 
-        const botUser = {
-            uid: 'chatbot_system',
-            name: 'Trợ Lý Z (AI) 🤖',
-            avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=ZBot',
-            msg: 'Hỏi gì đáp nấy (trừ tiền)!'
+        const guestBot = {
+            uid: 'chatbot_guest',
+            name: 'Hướng Dẫn Viên 💁‍♂️',
+            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guide',
+            msg: 'Cần giúp gì không nè?'
+        };
+
+        const regularBot = {
+            uid: 'chatbot_regular',
+            name: 'Chatbot 🎨',
+            avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=ArtBot',
+            msg: 'Gõ /ve để tạo ảnh nhé!'
         };
 
         const emojis = ['😀','😂','🤣','😍','🥰','😎','😭','😡','👍','👎','🎉','🔥','❤️','💔','💩','👻','💀','👽','🤖','🎃','😺','🐶','🐵','🦄','🍕','🍔','🍟','🍺','⚽','🏀','🎮','🚀','🇻🇳'];
@@ -943,9 +949,11 @@
         function loadFriends() {
             const list = document.getElementById('user-list');
             list.innerHTML = '';
+            
+            renderUserItem(regularBot);
+
             db.collection('users').doc(currentUser.uid).collection('friends').onSnapshot(async (snapshot) => {
-                list.innerHTML = '';
-                if (snapshot.empty) return list.innerHTML = '<div class="text-center text-slate-500 mt-10 text-sm">Chưa có bạn bè.</div>';
+                if (snapshot.empty) return;
                 for (const doc of snapshot.docs) {
                     if (currentUser.blocked && currentUser.blocked.includes(doc.id)) continue;
                     const userDoc = await db.collection('users').doc(doc.id).get();
@@ -960,7 +968,7 @@
         function renderGuestFriends() {
             const list = document.getElementById('user-list');
             list.innerHTML = '';
-            renderUserItem(botUser);
+            renderUserItem(guestBot);
         }
 
         function renderUserItem(u) {
@@ -1048,10 +1056,9 @@
             document.getElementById('chat-container').classList.add('buzz-effect');
             setTimeout(() => document.getElementById('chat-container').classList.remove('buzz-effect'), 500);
             
-            // Send buzz message
             if (currentChatUser) {
                 appendMessage({ type: 'text', content: '🔔 BUZZ!!!', sender: 'me', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
-                if(isGuest && currentChatUser.uid === 'chatbot_system') {
+                if((isGuest && currentChatUser.uid === 'chatbot_guest') || (!isGuest && currentChatUser.uid === 'chatbot_regular')) {
                     setTimeout(() => {
                         appendMessage({ type: 'text', content: 'Ui cha! Rung bần bật thế!', sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
                     }, 1000);
@@ -1076,7 +1083,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     msgData.type = selectedFileType;
-                    msgData.content = e.target.result;
+                    msgData.content = e.target.result; 
                     appendMessage(msgData);
                 };
                 reader.readAsDataURL(selectedFile);
@@ -1088,32 +1095,44 @@
             input.value = '';
             cancelReply();
             
-            if (isGuest && currentChatUser && currentChatUser.uid === 'chatbot_system') {
-                setTimeout(botReply, 1500);
-            } else {
-                // Auto reply for demo in real mode if not connected to real backend logic fully
-                // setTimeout(() => {
-                //     appendMessage({ type: 'text', content: 'Okela 👌', sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
-                // }, 1000);
+            if (currentChatUser && (currentChatUser.uid === 'chatbot_guest' || currentChatUser.uid === 'chatbot_regular')) {
+                setTimeout(() => handleBotResponse(text), 1500);
             }
         }
 
-        function botReply() {
-            const replies = [
-                "Chào bạn Khách! Tui là Bot đây 🤖",
-                "Câu này khó, bỏ qua nha! 😂",
-                "Kết bạn với tui đi!",
-                "Bạn nói gì cơ? Tui chưa nghe rõ.",
-                "Hôm nay trời đẹp quá ha!",
-                "Code này xịn đó bro!"
-            ];
-            const randomReply = replies[Math.floor(Math.random() * replies.length)];
-            appendMessage({
-                type: 'text',
-                content: randomReply,
-                sender: 'them',
-                timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            });
+        function handleBotResponse(userText) {
+            if (currentChatUser.uid === 'chatbot_guest') {
+                const replies = [
+                    "Chào bạn! Mình là Hướng Dẫn Viên. Đăng nhập để lưu tin nhắn nhé!",
+                    "Bấm vào nút chuông để rung màn hình cho vui!",
+                    "Chế độ khách không lưu được bạn bè đâu nha.",
+                    "Đăng nhập Google để mở khóa tính năng vẽ tranh AI nhé!",
+                    "Mình chỉ hướng dẫn thôi, không biết vẽ đâu hihi."
+                ];
+                const reply = replies[Math.floor(Math.random() * replies.length)];
+                appendMessage({ type: 'text', content: reply, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+            } else if (currentChatUser.uid === 'chatbot_regular') {
+                if (userText.toLowerCase().startsWith('/ve ')) {
+                    const prompt = userText.substring(4);
+                    appendMessage({ type: 'text', content: `Đang vẽ "${prompt}" cho bạn đây, đợi xíu... 🎨`, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+                    
+                    setTimeout(() => {
+                         appendMessage({ type: 'image', content: imageUrl, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    }, 2000);
+                } else {
+                    const replies = [
+                        "Chào bạn! Muốn mình vẽ gì không? Gõ /ve + mô tả nhé.",
+                        "Hôm nay trời đẹp quá ha!",
+                        "Mình là Chatbot AI, mình có thể vẽ tranh đó.",
+                        "Thử gõ: /ve con mèo cute xem sao!",
+                        "Bạn cần giúp gì không?"
+                    ];
+                    const reply = replies[Math.floor(Math.random() * replies.length)];
+                    appendMessage({ type: 'text', content: reply, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                }
+            }
         }
 
         function appendMessage(msg) {
@@ -1294,6 +1313,18 @@
         function viewImage(src) {
             window.open(src, '_blank');
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('message-input');
+            if (messageInput) {
+                messageInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
