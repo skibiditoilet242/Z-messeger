@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Z-Messenger Ultimate</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path fill=%22%236366f1%22 d=%22M50 0C22.4 0 0 22.4 0 50c0 15.6 7.2 29.7 18.6 39.4.5.4.9 1 .9 1.6V100l17.2-9.4c1.1-.6 2.3-.6 3.5-.3 3.1.8 6.4 1.2 9.8 1.2 27.6 0 50-22.4 50-50S77.6 0 50 0zm2.7 63.5L42 49l-19 14.5 21-22.5 10.7 14.5 19-14.5-21 22.5z%22/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -18,6 +19,8 @@
             background-color: #0f172a;
             color: #e2e8f0;
             overflow: hidden;
+            height: 100dvh;
+            width: 100vw;
         }
 
         ::-webkit-scrollbar {
@@ -345,8 +348,8 @@
         </div>
     </div>
 
-    <div id="app-screen" class="hidden flex h-screen relative">
-        <div id="main-sidebar" class="w-20 md:w-80 bg-slate-900 border-r border-slate-800 flex flex-col glass z-20 transition-all duration-300">
+    <div id="app-screen" class="hidden flex h-screen w-full relative">
+        <div id="main-sidebar" class="w-20 md:w-80 bg-slate-900 border-r border-slate-800 flex flex-col glass z-20 transition-all duration-300 h-full">
             <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
                 <div class="flex items-center gap-3 cursor-pointer group" onclick="showEditProfileModal()">
                     <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center relative ring-2 ring-transparent group-hover:ring-indigo-400 transition">
@@ -374,13 +377,13 @@
             </div>
 
             <div class="p-4 border-t border-slate-800 hidden md:flex justify-between items-center bg-slate-900/50">
-                <p class="text-xs text-slate-500">v10.0 AI Art</p>
+                <p class="text-xs text-slate-500">v17.0 No Popup</p>
                 <button onclick="logout()" class="text-slate-500 hover:text-red-400 transition text-xs"><i class="fas fa-sign-out-alt mr-1"></i> Thoát</button>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col bg-slate-950 relative" id="main-chat-area">
-            <div class="h-16 border-b border-slate-800 flex items-center justify-between px-6 glass z-10 bg-slate-900/80 backdrop-blur-md">
+        <div class="flex-1 flex flex-col bg-slate-950 relative h-full" id="main-chat-area">
+            <div class="h-16 border-b border-slate-800 flex items-center justify-between px-6 glass z-10 bg-slate-900/80 backdrop-blur-md flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="md:hidden mr-2 cursor-pointer text-slate-400 hover:text-white transition" onclick="toggleSidebar()">
                         <i class="fas fa-bars text-xl"></i>
@@ -401,7 +404,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 relative flex flex-col bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]">
+            <div class="flex-1 relative flex flex-col bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] overflow-hidden">
                 <div id="pinned-message-bar" class="hidden pinned-message">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-thumbtack text-indigo-400 text-xs"></i>
@@ -422,7 +425,7 @@
                 </div>
             </div>
 
-            <div id="preview-area" class="px-4 pt-2 hidden bg-slate-900/90 backdrop-blur border-t border-slate-800">
+            <div id="preview-area" class="px-4 pt-2 hidden bg-slate-900/90 backdrop-blur border-t border-slate-800 flex-shrink-0">
                 <div class="relative inline-block mt-2 mb-2">
                     <img id="image-preview" src="" class="h-24 rounded-lg border border-indigo-500 shadow-lg object-cover hidden">
                     <video id="video-preview" src="" class="h-24 rounded-lg border border-indigo-500 shadow-lg object-cover hidden" controls></video>
@@ -434,7 +437,7 @@
                 </div>
             </div>
 
-            <div id="reply-bar" class="hidden px-4 py-2 bg-slate-800/90 border-t border-slate-700 flex justify-between items-center">
+            <div id="reply-bar" class="hidden px-4 py-2 bg-slate-800/90 border-t border-slate-700 flex justify-between items-center flex-shrink-0">
                 <div class="flex flex-col border-l-4 border-indigo-500 pl-2">
                     <span class="text-[10px] text-indigo-400 font-bold" id="reply-to-user">Đang trả lời...</span>
                     <span class="text-xs text-slate-300 truncate max-w-xs" id="reply-content">Nội dung...</span>
@@ -442,7 +445,7 @@
                 <button onclick="cancelReply()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
 
-            <div class="p-4 glass mb-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800">
+            <div class="p-4 glass mb-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 flex-shrink-0">
                 <div class="quick-replies mb-2">
                     <button class="quick-reply-btn" onclick="sendQuickReply('Xin chào! 👋')">Xin chào! 👋</button>
                     <button class="quick-reply-btn" onclick="sendQuickReply('Kết bạn nha? 🤝')">Kết bạn nha? 🤝</button>
@@ -475,7 +478,7 @@
             <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(this, 'file')">
         </div>
 
-        <div id="info-panel" class="w-0 md:w-0 overflow-hidden bg-slate-900 border-l border-slate-800 transition-all duration-300 ease-in-out z-20">
+        <div id="info-panel" class="w-0 md:w-0 overflow-hidden bg-slate-900 border-l border-slate-800 transition-all duration-300 ease-in-out z-20 h-full">
             <div class="h-full flex flex-col">
                 <div class="p-6 flex flex-col items-center border-b border-slate-800">
                     <img id="info-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=General" class="w-24 h-24 rounded-full mb-4 bg-slate-800 border-4 border-slate-800 shadow-xl object-cover">
@@ -666,7 +669,7 @@
 
         const guestBot = {
             uid: 'chatbot_guest',
-            name: 'Hướng Dẫn Viên 💁‍♂️',
+            name: 'Hướng Dẫn Viên (Bot)',
             avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guide',
             msg: 'Cần giúp gì không nè?'
         };
@@ -1066,6 +1069,11 @@
             }
         }
 
+        function scrollToBottom() {
+            const container = document.getElementById('chat-container');
+            container.scrollTop = container.scrollHeight;
+        }
+
         function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
@@ -1096,41 +1104,76 @@
             cancelReply();
             
             if (currentChatUser && (currentChatUser.uid === 'chatbot_guest' || currentChatUser.uid === 'chatbot_regular')) {
-                setTimeout(() => handleBotResponse(text), 1500);
+                const typingId = 'typing-' + Date.now();
+                appendTypingIndicator(typingId);
+                handleBotResponse(text, typingId);
             }
         }
 
-        function handleBotResponse(userText) {
-            if (currentChatUser.uid === 'chatbot_guest') {
-                const replies = [
-                    "Chào bạn! Mình là Hướng Dẫn Viên. Đăng nhập để lưu tin nhắn nhé!",
-                    "Bấm vào nút chuông để rung màn hình cho vui!",
-                    "Chế độ khách không lưu được bạn bè đâu nha.",
-                    "Đăng nhập Google để mở khóa tính năng vẽ tranh AI nhé!",
-                    "Mình chỉ hướng dẫn thôi, không biết vẽ đâu hihi."
-                ];
-                const reply = replies[Math.floor(Math.random() * replies.length)];
-                appendMessage({ type: 'text', content: reply, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
-            } else if (currentChatUser.uid === 'chatbot_regular') {
+        function appendTypingIndicator(id) {
+            const container = document.getElementById('chat-container');
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = `flex w-full justify-start animate-fade-in group message-group mb-4`;
+            div.innerHTML = `
+                <div class="flex items-end max-w-[85%] gap-2 relative">
+                    <img src="${currentChatUser?.avatar}" class="w-8 h-8 rounded-full bg-slate-700 mb-1 object-cover self-end">
+                    <div class="bg-slate-700 p-3 rounded-2xl shadow-md text-white relative flex items-center gap-1">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>`;
+            container.appendChild(div);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        async function handleBotResponse(userText, typingId) {
+            let isDrawing = false;
+
+            if (currentChatUser.uid === 'chatbot_regular') {
                 if (userText.toLowerCase().startsWith('/ve ')) {
-                    const prompt = userText.substring(4);
-                    appendMessage({ type: 'text', content: `Đang vẽ "${prompt}" cho bạn đây, đợi xíu... 🎨`, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    isDrawing = true;
+                    const drawPrompt = userText.substring(4);
                     
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+                    removeTypingIndicator(typingId);
+                    appendMessage({ type: 'text', content: `Đang vẽ "${drawPrompt}"... 🎨`, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
                     
-                    setTimeout(() => {
-                         appendMessage({ type: 'image', content: imageUrl, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
-                    }, 2000);
-                } else {
-                    const replies = [
-                        "Chào bạn! Muốn mình vẽ gì không? Gõ /ve + mô tả nhé.",
-                        "Hôm nay trời đẹp quá ha!",
-                        "Mình là Chatbot AI, mình có thể vẽ tranh đó.",
-                        "Thử gõ: /ve con mèo cute xem sao!",
-                        "Bạn cần giúp gì không?"
-                    ];
-                    const reply = replies[Math.floor(Math.random() * replies.length)];
-                    appendMessage({ type: 'text', content: reply, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    puter.ai.txt2img(drawPrompt).then((image) => {
+                        appendMessage({ type: 'image', content: image.src, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    }).catch(e => {
+                        appendMessage({ type: 'text', content: "Hic, lỗi vẽ tranh rồi. Thử lại sau nha!", sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    });
+                    return; 
+                } 
+            }
+
+            if (!isDrawing) {
+                try {
+                    let response;
+                    if (currentChatUser.uid === 'chatbot_guest') {
+                        // Guest uses a standard model
+                        const systemPrompt = "Bạn là Hướng Dẫn Viên thân thiện của Z-Messenger. Trả lời ngắn gọn bằng tiếng Việt.";
+                         response = await puter.ai.chat(`${systemPrompt} User: ${userText}`, { model: 'gpt-3.5-turbo', ignored: ['Puter'] });
+                    } else {
+                        // Regular user uses a smarter model
+                        const systemPrompt = "Bạn là Chatbot AI thông minh của Z-Messenger. Trả lời hài hước, ngắn gọn bằng tiếng Việt.";
+                        response = await puter.ai.chat(`${systemPrompt} User: ${userText}`, { model: 'gpt-4o', ignored: ['Puter'] });
+                    }
+
+                    const replyText = typeof response === 'object' ? (response.message?.content || response.toString()) : response;
+
+                    removeTypingIndicator(typingId);
+                    appendMessage({ type: 'text', content: replyText, sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                } catch (error) {
+                    console.error("Bot Error:", error);
+                    removeTypingIndicator(typingId);
+                    appendMessage({ type: 'text', content: "Mạng lag quá, Puter AI đang bận ngủ! 😵‍💫", sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
                 }
             }
         }
@@ -1139,7 +1182,7 @@
             const container = document.getElementById('chat-container');
             const div = document.createElement('div');
             const isMe = msg.sender === 'me';
-            div.className = `flex w-full ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in group message-group`;
+            div.className = `flex w-full ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in group message-group mb-4`;
             
             let contentHtml = '';
             let linkPreviewHtml = '';
@@ -1169,7 +1212,7 @@
                 replyHtml = `<div class="bg-black/20 p-2 rounded mb-1 text-xs border-l-2 border-white/50 text-slate-300 truncate max-w-[150px]">${msg.replyTo}</div>`;
             }
 
-            const avatarHtml = !isMe ? `<img src="${currentChatUser?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Unknown'}" class="w-8 h-8 rounded-full bg-slate-700 mb-1 object-cover">` : '';
+            const avatarHtml = !isMe ? `<img src="${currentChatUser?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Unknown'}" class="w-8 h-8 rounded-full bg-slate-700 mb-1 object-cover self-end">` : '';
             
             const actionsHtml = `
                 <div class="reaction-bar hidden group-hover:flex">
@@ -1196,7 +1239,9 @@
                 </div>`;
             
             container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+            requestAnimationFrame(() => {
+                scrollToBottom();
+            });
         }
 
         function react(el, emoji) {
