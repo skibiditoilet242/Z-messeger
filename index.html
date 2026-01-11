@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Z-Messenger Ultimate</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path fill=%22%236366f1%22 d=%22M50 0C22.4 0 0 22.4 0 50c0 15.6 7.2 29.7 18.6 39.4.5.4.9 1 .9 1.6V100l17.2-9.4c1.1-.6 2.3-.6 3.5-.3 3.1.8 6.4 1.2 9.8 1.2 27.6 0 50-22.4 50-50S77.6 0 50 0zm2.7 63.5L42 49l-19 14.5 21-22.5 10.7 14.5 19-14.5-21 22.5z%22/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -204,6 +205,86 @@
         .theme-btn.active {
             border-color: white;
         }
+
+        .link-preview-card {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-top: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .link-preview-card:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .link-icon {
+            width: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .link-info {
+            padding: 8px;
+            overflow: hidden;
+        }
+        .link-domain {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .link-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .quick-replies {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 16px;
+            scrollbar-width: none;
+        }
+        .quick-reply-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 4px 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-reply-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .buzz-effect {
+            animation: shake 0.5s;
+            animation-iteration-count: 1;
+        }
     </style>
 </head>
 <body>
@@ -231,9 +312,8 @@
                     <div class="flex-grow border-t border-slate-700"></div>
                 </div>
 
-                <input type="text" id="username-input" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition placeholder-slate-500" placeholder="Tên của bạn...">
                 <button onclick="loginGuest()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg shadow-indigo-600/30">
-                    Vào ngay <i class="fas fa-arrow-right ml-2"></i>
+                    Trải nghiệm nhanh (Khách) <i class="fas fa-robot ml-2"></i>
                 </button>
             </div>
         </div>
@@ -278,7 +358,7 @@
                         <p class="text-xs text-indigo-400 cursor-pointer hover:underline" onclick="copyMyID(event)">ID: <span id="display-uid-short">...</span> <i class="far fa-copy"></i></p>
                     </div>
                 </div>
-                <button onclick="showAddFriendModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 text-slate-400 hover:text-white transition flex items-center justify-center" title="Thêm bạn bè">
+                <button id="add-friend-btn" onclick="showAddFriendModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 text-slate-400 hover:text-white transition flex items-center justify-center" title="Thêm bạn bè">
                     <i class="fas fa-user-plus text-xs"></i>
                 </button>
             </div>
@@ -294,12 +374,12 @@
             </div>
 
             <div class="p-4 border-t border-slate-800 hidden md:flex justify-between items-center bg-slate-900/50">
-                <p class="text-xs text-slate-500">v6.6 Ultimate</p>
+                <p class="text-xs text-slate-500">v8.0 Bot Edition</p>
                 <button onclick="logout()" class="text-slate-500 hover:text-red-400 transition text-xs"><i class="fas fa-sign-out-alt mr-1"></i> Thoát</button>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col bg-slate-950 relative">
+        <div class="flex-1 flex flex-col bg-slate-950 relative" id="main-chat-area">
             <div class="h-16 border-b border-slate-800 flex items-center justify-between px-6 glass z-10 bg-slate-900/80 backdrop-blur-md">
                 <div class="flex items-center gap-3">
                     <div class="md:hidden mr-2 cursor-pointer text-slate-400 hover:text-white transition" onclick="toggleSidebar()">
@@ -363,6 +443,15 @@
             </div>
 
             <div class="p-4 glass mb-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800">
+                <!-- Quick Replies -->
+                <div class="quick-replies mb-2">
+                    <button class="quick-reply-btn" onclick="sendQuickReply('Xin chào! 👋')">Xin chào! 👋</button>
+                    <button class="quick-reply-btn" onclick="sendQuickReply('Kết bạn nha? 🤝')">Kết bạn nha? 🤝</button>
+                    <button class="quick-reply-btn" onclick="sendQuickReply('Oke luôn 👌')">Oke luôn 👌</button>
+                    <button class="quick-reply-btn" onclick="sendQuickReply('Đang bận tí ⏳')">Đang bận tí ⏳</button>
+                    <button class="quick-reply-btn" onclick="sendQuickReply('Haha 😂')">Haha 😂</button>
+                </div>
+
                 <div class="flex items-end gap-2 bg-slate-800/50 p-2 rounded-3xl border border-slate-700/50 relative transition-all focus-within:border-indigo-500/50 focus-within:bg-slate-800">
                     <button onclick="document.getElementById('file-input').click()" class="w-10 h-10 rounded-full text-indigo-400 hover:bg-slate-700/50 transition flex items-center justify-center"><i class="fas fa-plus-circle text-xl"></i></button>
                     <button onclick="document.getElementById('media-input').click()" class="w-10 h-10 rounded-full text-indigo-400 hover:bg-slate-700/50 transition flex items-center justify-center"><i class="fas fa-images text-xl"></i></button>
@@ -377,6 +466,7 @@
                         <div class="emoji-grid" id="emoji-list"></div>
                     </div>
 
+                    <button onclick="buzz()" class="w-10 h-10 rounded-full text-red-500 hover:bg-slate-700/50 transition flex items-center justify-center font-bold" title="Buzz!"><i class="fas fa-bell"></i></button>
                     <button id="mic-btn" onclick="toggleRecording()" class="w-10 h-10 rounded-full text-slate-400 hover:bg-slate-700/50 hover:text-red-500 transition flex items-center justify-center"><i class="fas fa-microphone text-xl"></i></button>
                     <button onclick="sendMessage()" class="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/30 transition flex items-center justify-center transform active:scale-95"><i class="fas fa-paper-plane text-sm"></i></button>
                 </div>
@@ -575,6 +665,13 @@
         let replyTo = null;
         let chatTheme = 'from-indigo-500 to-purple-500';
 
+        const botUser = {
+            uid: 'chatbot_system',
+            name: 'Trợ Lý Z (AI) 🤖',
+            avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=ZBot',
+            msg: 'Hỏi gì đáp nấy (trừ tiền)!'
+        };
+
         const emojis = ['😀','😂','🤣','😍','🥰','😎','😭','😡','👍','👎','🎉','🔥','❤️','💔','💩','👻','💀','👽','🤖','🎃','😺','🐶','🐵','🦄','🍕','🍔','🍟','🍺','⚽','🏀','🎮','🚀','🇻🇳'];
 
         function loginWithGoogle() {
@@ -591,14 +688,13 @@
         }
 
         function loginGuest() {
-            const username = document.getElementById('username-input').value.trim();
-            if (!username) return alert("Nhập tên đi bạn ơi!");
-            
+            const randomId = Math.floor(Math.random() * 9000) + 1000;
+            const guestName = "Khách Ẩn Danh " + randomId;
             isGuest = true;
             currentUser = {
-                uid: 'guest_' + Math.random().toString(36).substr(2, 9),
-                name: username + " (Khách)",
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+                uid: 'guest_' + randomId,
+                name: guestName,
+                avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${randomId}`,
                 email: 'guest@genz.mess',
                 blocked: []
             };
@@ -610,8 +706,19 @@
                 if (doc.exists) {
                     handleUserLogin(doc.data(), user.uid);
                 } else {
-                    pendingGoogleUser = user;
-                    showSetupProfile(user);
+                    const userData = {
+                        uid: user.uid,
+                        name: user.displayName || "Người dùng mới",
+                        avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
+                        email: user.email,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        blocked: []
+                    };
+                    
+                    db.collection('users').doc(user.uid).set(userData).then(() => {
+                        handleUserLogin(userData, user.uid);
+                    });
                 }
             }).catch(err => {
                 console.error("Lỗi:", err);
@@ -669,8 +776,10 @@
             if(!isGuest) {
                 loadFriends();
                 listenForFriendRequests();
+                document.getElementById('add-friend-btn').classList.remove('hidden');
             } else {
                 renderGuestFriends();
+                document.getElementById('add-friend-btn').classList.add('hidden');
             }
         }
 
@@ -691,6 +800,7 @@
         }
 
         function showEditProfileModal() {
+            if(isGuest) return alert("Khách không đổi tên được đâu bạn ơi! 😉");
             document.getElementById('edit-profile-modal').classList.remove('hidden');
         }
 
@@ -850,11 +960,7 @@
         function renderGuestFriends() {
             const list = document.getElementById('user-list');
             list.innerHTML = '';
-            const users = [
-                { uid: 'crush', name: 'Crush 🥰', msg: 'Tối nay đi chơi khum?', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Crush' },
-                { uid: 'bot', name: 'Bot AI', msg: 'Tôi là bot đây', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bot' }
-            ];
-            users.forEach(u => renderUserItem(u));
+            renderUserItem(botUser);
         }
 
         function renderUserItem(u) {
@@ -886,7 +992,6 @@
                 </div>`;
             list.appendChild(div);
             
-            // Auto select first user
             if (!currentChatUser) div.click();
         }
 
@@ -919,6 +1024,41 @@
             document.getElementById('media-input').value = '';
         }
 
+        function detectLinks(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, (url) => {
+                return `<a href="${url}" target="_blank" class="text-indigo-300 underline hover:text-white break-all">${url}</a>`;
+            });
+        }
+
+        function extractDomain(url) {
+            try {
+                return new URL(url).hostname.replace('www.', '');
+            } catch {
+                return 'Liên kết';
+            }
+        }
+
+        function sendQuickReply(text) {
+            document.getElementById('message-input').value = text;
+            sendMessage();
+        }
+
+        function buzz() {
+            document.getElementById('chat-container').classList.add('buzz-effect');
+            setTimeout(() => document.getElementById('chat-container').classList.remove('buzz-effect'), 500);
+            
+            // Send buzz message
+            if (currentChatUser) {
+                appendMessage({ type: 'text', content: '🔔 BUZZ!!!', sender: 'me', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                if(isGuest && currentChatUser.uid === 'chatbot_system') {
+                    setTimeout(() => {
+                        appendMessage({ type: 'text', content: 'Ui cha! Rung bần bật thế!', sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                    }, 1000);
+                }
+            }
+        }
+
         function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
@@ -936,7 +1076,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     msgData.type = selectedFileType;
-                    msgData.content = e.target.result; // Base64
+                    msgData.content = e.target.result;
                     appendMessage(msgData);
                 };
                 reader.readAsDataURL(selectedFile);
@@ -948,10 +1088,32 @@
             input.value = '';
             cancelReply();
             
-            // Auto reply demo
-            setTimeout(() => {
-                appendMessage({ type: 'text', content: 'Okela 👌', sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
-            }, 1000);
+            if (isGuest && currentChatUser && currentChatUser.uid === 'chatbot_system') {
+                setTimeout(botReply, 1500);
+            } else {
+                // Auto reply for demo in real mode if not connected to real backend logic fully
+                // setTimeout(() => {
+                //     appendMessage({ type: 'text', content: 'Okela 👌', sender: 'them', timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+                // }, 1000);
+            }
+        }
+
+        function botReply() {
+            const replies = [
+                "Chào bạn Khách! Tui là Bot đây 🤖",
+                "Câu này khó, bỏ qua nha! 😂",
+                "Kết bạn với tui đi!",
+                "Bạn nói gì cơ? Tui chưa nghe rõ.",
+                "Hôm nay trời đẹp quá ha!",
+                "Code này xịn đó bro!"
+            ];
+            const randomReply = replies[Math.floor(Math.random() * replies.length)];
+            appendMessage({
+                type: 'text',
+                content: randomReply,
+                sender: 'them',
+                timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
         }
 
         function appendMessage(msg) {
@@ -961,7 +1123,25 @@
             div.className = `flex w-full ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in group message-group`;
             
             let contentHtml = '';
-            if (msg.type === 'text') contentHtml = `<p>${msg.content}</p>`;
+            let linkPreviewHtml = '';
+
+            if (msg.type === 'text') {
+                contentHtml = `<p>${detectLinks(msg.content)}</p>`;
+                const urlMatch = msg.content.match(/(https?:\/\/[^\s]+)/);
+                if (urlMatch) {
+                    const url = urlMatch[0];
+                    const domain = extractDomain(url);
+                    linkPreviewHtml = `
+                        <a href="${url}" target="_blank" class="link-preview-card">
+                            <div class="link-icon"><i class="fas fa-link text-white"></i></div>
+                            <div class="link-info">
+                                <div class="link-title">${domain}</div>
+                                <div class="link-domain">${domain}</div>
+                            </div>
+                        </a>
+                    `;
+                }
+            }
             else if (msg.type === 'image') contentHtml = `<img src="${msg.content}" class="rounded-lg max-w-[200px] cursor-pointer" onclick="viewImage(this.src)">`;
             else if (msg.type === 'video') contentHtml = `<video src="${msg.content}" controls class="rounded-lg max-w-[250px]"></video>`;
 
@@ -986,6 +1166,7 @@
                     <div class="${isMe ? `bg-gradient-to-r ${chatTheme}` : 'bg-slate-700'} p-3 rounded-2xl shadow-md text-white relative">
                         ${replyHtml}
                         ${contentHtml}
+                        ${linkPreviewHtml}
                         <div class="flex justify-end items-center gap-1 mt-1">
                             <p class="text-[9px] opacity-70">${msg.timestamp}</p>
                             ${isMe ? '<i class="fas fa-check-circle text-[8px] text-white/70"></i>' : ''}
